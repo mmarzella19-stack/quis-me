@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Interaktif Mata Pelajaran</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            color: #38bdf8;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: #94a3b8;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* CATEGORY SELECTION */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .card-btn {
+            background: #334155;
+            border: 2px solid #475569;
+            border-radius: 16px;
+            padding: 25px 20px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .card-btn .icon {
+            font-size: 2.5rem;
+        }
+
+        .card-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-btn.mtk:hover { border-color: #38bdf8; background: #0c4a6e; }
+        .card-btn.sains:hover { border-color: #4ade80; background: #064e3b; }
+        .card-btn.ekonomi:hover { border-color: #facc15; background: #713f12; }
+        .card-btn.inggris:hover { border-color: #f43f5e; background: #881337; }
+
+        /* QUIZ CONTAINER */
+        .quiz-container {
+            background: #1e293b;
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid #334155;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .btn-back {
+            background: transparent;
+            border: 1px solid #475569;
+            color: #94a3b8;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-back:hover {
+            background: #334155;
+            color: white;
+        }
+
+        .subject-tag {
+            background: #0284c7;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #334155;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #38bdf8;
+            transition: width 0.3s ease;
+        }
+
+        .question-container h2 {
+            font-size: 1.25rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: #334155;
+            border: 2px solid #475569;
+            color: #f8fafc;
+            padding: 14px 18px;
+            border-radius: 12px;
+            text-align: left;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not([disabled]) {
+            background: #475569;
+            border-color: #94a3b8;
+        }
+
+        .option-btn.correct {
+            background: #15803d !important;
+            border-color: #22c55e !important;
+        }
+
+        .option-btn.wrong {
+            background: #b91c1c !important;
+            border-color: #ef4444 !important;
+        }
+
+        .quiz-footer {
+            margin-top: 25px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-primary {
+            background: #0284c7;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #0369a1;
+        }
+
+        .btn-secondary {
+            background: #475569;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: #334155;
+        }
+
+        /* RESULT CONTAINER */
+        .result-container {
+            text-align: center;
+        }
+
+        .result-card {
+            background: #1e293b;
+            border-radius: 20px;
+            padding: 40px 30px;
+            border: 1px solid #334155;
+        }
+
+        .result-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        .score-circle {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background: #0f172a;
+            border: 4px solid #38bdf8;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+        }
+
+        .score-circle #final-score {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #38bdf8;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- HEADER -->
+        <header>
+            <h1>🎓 Kuis Pelajaran Umum</h1>
+            <p>Uji pengetahuanmu di berbagai bidang studi!</p>
+        </header>
+
+        <!-- MENU PILIHAN PELAJARAN -->
+        <nav id="category-menu" class="category-grid">
+            <button class="card-btn mtk" onclick="selectCategory('mtk')">
+                <span class="icon">📐</span>
+                <span>Matematika</span>
+            </button>
+            <button class="card-btn sains" onclick="selectCategory('sains')">
+                <span class="icon">🔬</span>
+                <span>Sains (IPA)</span>
+            </button>
+            <button class="card-btn ekonomi" onclick="selectCategory('ekonomi')">
+                <span class="icon">📊</span>
+                <span>Ekonomi</span>
+            </button>
+            <button class="card-btn inggris" onclick="selectCategory('inggris')">
+                <span class="icon">🇬🇧</span>
+                <span>Bahasa Inggris</span>
+            </button>
+        </nav>
+
+        <!-- AREA KUIS -->
+        <main id="quiz-box" class="quiz-container hidden">
+            <div class="quiz-header">
+                <button class="btn-back" onclick="goHome()">⬅️ Ganti Mapel</button>
+                <span id="subject-title" class="subject-tag">Matematika</span>
+                <span id="progress-text">Soal 1 dari 10</span>
+            </div>
+
+            <div class="progress-bar">
+                <div id="progress-fill" class="progress-fill"></div>
+            </div>
+
+            <div class="question-container">
+                <h2 id="question-text">Teks pertanyaan akan muncul di sini...</h2>
+                <div id="options-container" class="options-grid"></div>
+            </div>
+
+            <div class="quiz-footer">
+                <button id="next-btn" class="btn-primary hidden" onclick="nextQuestion()">Soal Berikutnya ➡️</button>
+            </div>
+        </main>
+
+        <!-- AREA HASIL AKHIR -->
+        <section id="result-box" class="result-container hidden">
+            <div class="result-card">
+                <div class="result-icon" id="result-icon">🏆</div>
+                <h2>Hasil Kuis Kamu</h2>
+                <h3 id="result-subject">Matematika</h3>
+                
+                <div class="score-circle">
+                    <span id="final-score">0</span>
+                    <small>Skor Akhir</small>
+                </div>
+
+                <p id="result-message">Kerja bagus! Terus tingkatkan kemampuannmu.</p>
+
+                <div class="result-actions">
+                    <button class="btn-primary" onclick="restartQuiz()">Coba Lagi 🔄</button>
+                    <button class="btn-secondary" onclick="goHome()">Pilih Mapel Lain 🏠</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // DATABASE SOAL PER MATA PELAJARAN (MASING-MASING 10 SOAL)
+        const quizData = {
+            mtk: [
+                { q: "Hasil dari 15 + (4 × 5) adalah...", options: ["35", "95", "40", "55"], answer: 0 },
+                { q: "Jika 3x - 5 = 10, maka nilai x adalah...", options: ["3", "5", "15", "4"], answer: 1 },
+                { q: "Akar pangkat dua dari 144 adalah...", options: ["11", "12", "14", "16"], answer: 1 },
+                { q: "Luas segitiga dengan alas 8 cm dan tinggi 6 cm adalah...", options: ["48 cm²", "24 cm²", "14 cm²", "30 cm²"], answer: 1 },
+                { q: "Keliling lingkaran dengan jari-jari 7 cm (π = 22/7) adalah...", options: ["44 cm", "88 cm", "154 cm", "22 cm"], answer: 0 },
+                { q: "Hasil dari 2³ × 2² adalah...", options: ["16", "32", "64", "12"], answer: 1 },
+                { q: "Sebuah dadu dilempar sekali. Peluang muncul angka genap adalah...", options: ["1/6", "1/3", "1/2", "2/3"], answer: 2 },
+                { q: "Berapakah 25% dari 200?", options: ["25", "50", "75", "100"], answer: 1 },
+                { q: "Nilai median dari data: 3, 5, 7, 8, 9 adalah...", options: ["5", "7", "8", "6.4"], answer: 1 },
+                { q: "Hasil dari -12 + (-8) - (-10) adalah...", options: ["-10", "-30", "10", "-6"], answer: 0 }
+            ],
+            sains: [
+                { q: "Organ tubuh manusia yang berfungsi memompa darah adalah...", options: ["Paru-paru", "Hati", "Jantung", "Ginjal"], answer: 2 },
+                { q: "Proses pembuatan makanan pada tumbuhan hijau dinamakan...", options: ["Respirasi", "Fotosintesis", "Transpirasi", "Adaptasi"], answer: 1 },
+                { q: "Planet terdekat dari Matahari dalam sistem Tata Surya adalah...", options: ["Venus", "Mars", "Merkurius", "Bumi"], answer: 2 },
+                { q: "Gas yang dibutuhkan manusia saat bernapas adalah...", options: ["Karbondioksida", "Oksigen", "Nitrogen", "Helium"], answer: 1 },
+                { q: "Perubahan wujud benda dari padat menjadi gas disebut...", options: ["Mencair", "Menguap", "Menyublim", "Mengkristal"], answer: 2 },
+                { q: "Satuan Internasional (SI) untuk mengukur gaya adalah...", options: ["Joule", "Watt", "Pascal", "Newton"], answer: 3 },
+                { q: "Hewan yang mengalami metamorfosis sempurna adalah...", options: ["Kupu-kupu", "Belalang", "Kecoa", "Jangkrik"], answer: 0 },
+                { q: "Zat hijau daun yang berperan dalam fotosintesis adalah...", options: ["Klorofil", "Stomata", "Xilem", "Floem"], answer: 0 },
+                { q: "Alat untuk mengukur suhu tubuh atau benda adalah...", options: ["Barometer", "Thermometer", "Amperemeter", "Higrometer"], answer: 1 },
+                { q: "Bagian sel tumbuhan yang berfungsi memberi bentuk kaku adalah...", options: ["Membran sel", "Dinding sel", "Sitoplasma", "Inti sel"], answer: 1 }
+            ],
+            ekonomi: [
+                { q: "Hukum permintaan menyatakan bahwa jika harga naik, maka permintaan akan...", options: ["Naik", "Turun", "Tetap", "Tidak menentu"], answer: 1 },
+                { q: "Masalah pokok ekonomi modern meliputi...", options: ["What, How, For Whom", "Why, Who, Where", "Buy, Sell, Trade", "Input, Output, Income"], answer: 0 },
+                { q: "Pasar yang hanya terdiri dari satu penjual tunggal disebut pasar...", options: ["Oligopoli", "Monopoli", "Persaingan Sempurna", "Monopsoni"], answer: 1 },
+                { q: "Bank sentral di Indonesia yang mengatur kebijakan moneter adalah...", options: ["Bank Mandiri", "Bank BCA", "Bank Indonesia", "Bank BRI"], answer: 2 },
+                { q: "Kenaikan harga barang secara umum dan terus-menerus dinamakan...", options: ["Deflasi", "Inflasi", "Devaluasi", "Depresiasi"], answer: 1 },
+                { q: "Pajak termasuk ke dalam sumber pendapatan negara sektor...", options: ["Hibah", "Penerimaan Dalam Negeri", "Pinjaman Luar Negeri", "BUMN"], answer: 1 },
+                { q: "Pencetus teori ekonomi klasik yang dikenal sebagai Bapak Ekonomi Dunia adalah...", options: ["Adam Smith", "John Maynard Keynes", "Karl Marx", "Alfred Marshall"], answer: 0 },
+                { q: "Kegiatan mengurangi atau menghabiskan nilai guna suatu barang dinamakan...", options: ["Produksi", "Distribusi", "Konsumsi", "Investasi"], answer: 2 },
+                { q: "Uang kertas dan uang logam yang kita gunakan sehari-hari termasuk jenis uang...", options: ["Giral", "Kartal", "Elektronik", "Kuasi"], answer: 1 },
+                { q: "Pernyataan pencatatan transaksi debet dan kredit secara seimbang berada dalam sistem...", options: ["Akuntansi", "Manajemen", "Pemasaran", "Statistik"], answer: 0 }
+            ],
+            inggris: [
+                { q: "What is the past tense (Verb 2) of 'GO'?", options: ["Gone", "Went", "Going", "Goes"], answer: 1 },
+                { q: "She _____ to the library every Wednesday.", options: ["go", "goes", "went", "going"], answer: 1 },
+                { q: "Antonym of the word 'ANCIENT' is...", options: ["Old", "Modern", "Huge", "Antique"], answer: 1 },
+                { q: "Choose the correct sentence:", options: ["He don't like apples.", "He doesn't likes apples.", "He doesn't like apples.", "He not like apples."], answer: 2 },
+                { q: "Synonym of 'HAPPY' is...", options: ["Joyful", "Sad", "Angry", "Tired"], answer: 0 },
+                { q: "They _____ playing football right now.", options: ["is", "am", "are", "was"], answer: 2 },
+                { q: "What is the plural form of 'CHILD'?", options: ["Childs", "Childrens", "Children", "Childes"], answer: 2 },
+                { q: "A person who flies an airplane is called a...", options: ["Driver", "Captain", "Pilot", "Chef"], answer: 2 },
+                { q: "'I have lived in Jakarta _____ 5 years.'", options: ["since", "for", "during", "at"], answer: 1 },
+                { q: "Which one is an adjective?", options: ["Quickly", "Beautiful", "Run", "Happiness"], answer: 1 }
+            ]
+        };
+
+        // VARIABEL STATE
+        let currentCategory = '';
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        // ELEMENT DOM
+        const categoryMenu = document.getElementById('category-menu');
+        const quizBox = document.getElementById('quiz-box');
+        const resultBox = document.getElementById('result-box');
+
+        const subjectTitle = document.getElementById('subject-title');
+        const progressText = document.getElementById('progress-text');
+        const progressFill = document.getElementById('progress-fill');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+
+        // NAMA PELAJARAN FOR DISPLAY
+        const categoryNames = {
+            mtk: "Matematika",
+            sains: "Sains (IPA)",
+            ekonomi: "Ekonomi",
+            inggris: "Bahasa Inggris"
+        };
+
+        // 1. MEMILIH MATA PELAJARAN
+        function selectCategory(category) {
+            currentCategory = category;
+            currentQuestionIndex = 0;
+            score = 0;
+
+            categoryMenu.classList.add('hidden');
+            resultBox.classList.add('hidden');
+            quizBox.classList.remove('hidden');
+
+            subjectTitle.innerText = categoryNames[category];
+            loadQuestion();
+        }
+
+        // 2. MEMUAT SOAL
+        function loadQuestion() {
+            resetState();
+            const currentQuiz = quizData[currentCategory][currentQuestionIndex];
+
+            // Update Progress Bar & Text
+            const totalQuestions = quizData[currentCategory].length;
+            progressText.innerText = `Soal ${currentQuestionIndex + 1} dari ${totalQuestions}`;
+            progressFill.style.width = `${((currentQuestionIndex + 1) / totalQuestions) * 100}%`;
+
+            // Tampilkan Pertanyaan
+            questionText.innerText = currentQuiz.q;
+
+            // Tampilkan Pilihan Jawaban
+            currentQuiz.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.innerText = option;
+                button.classList.add('option-btn');
+                button.onclick = () => selectOption(index, button);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        // 3. RESET TAMPILAN JAWABAN
+        function resetState() {
+            nextBtn.classList.add('hidden');
+            optionsContainer.innerHTML = '';
+        }
+
+        // 4. PROSES MEMILIH JAWABAN
+        function selectOption(selectedIndex, selectedBtn) {
+            const currentQuiz = quizData[currentCategory][currentQuestionIndex];
+            const allButtons = optionsContainer.children;
+
+            // Cek Benar / Salah
+            if (selectedIndex === currentQuiz.answer) {
+                selectedBtn.classList.add('correct');
+                score += 10; // 10 poin per soal (Total 100)
+            } else {
+                selectedBtn.classList.add('wrong');
+                allButtons[currentQuiz.answer].classList.add('correct');
+            }
+
+            // Nonaktifkan semua tombol
+            Array.from(allButtons).forEach(btn => btn.disabled = true);
+
+            // Tampilkan tombol Lanjut
+            nextBtn.classList.remove('hidden');
+        }
+
+        // 5. NAVIGASI SOAL BERIKUTNYA
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData[currentCategory].length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        // 6. MENAMPILKAN HASIL AKHIR
+        function showResult() {
+            quizBox.classList.add('hidden');
+            resultBox.classList.remove('hidden');
+
+            document.getElementById('result-subject').innerText = categoryNames[currentCategory];
+            document.getElementById('final-score').innerText = score;
+
+            const resultIcon = document.getElementById('result-icon');
+            const resultMessage = document.getElementById('result-message');
+
+            if (score >= 80) {
+                resultIcon.innerText = "🌟";
+                resultMessage.innerText = "Luar biasa! Kamu menguasai materi ini dengan baik.";
+            } else if (score >= 50) {
+                resultIcon.innerText = "👍";
+                resultMessage.innerText = "Bagus! Terus belajar untuk dapat nilai sempurna.";
+            } else {
+                resultIcon.innerText = "📚";
+                resultMessage.innerText = "Jangan menyerah! Pelajari lagi materinya dan coba lagi.";
+            }
+        }
+
+        // 7. FUNGSI TOMBOL NAVIGASI UMUM
+        function restartQuiz() {
+            selectCategory(currentCategory);
+        }
+
+        function goHome() {
+            quizBox.classList.add('hidden');
+            resultBox.classList.add('hidden');
+            categoryMenu.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
